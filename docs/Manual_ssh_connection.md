@@ -24,7 +24,7 @@ Conexión SSH con un archivo pem
 
 ### Ejecutar comando
   
-Ejecuta un comando
+Ejecuta un comando de terminal en la conexión ssh
 |Parámetros|Descripción|ejemplo|
 | --- | --- | --- |
 |Ingrese comando|Instrucción a ejecutar en la terminal de la conexión|cd /path/to/any/folder|
