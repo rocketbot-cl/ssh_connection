@@ -27,8 +27,9 @@ Para instalar librerias se debe ingresar por terminal a la carpeta "libs"
 import os
 import sys
 base_path = tmp_global_obj["basepath"]
-cur_path = base_path + 'modules' + os.sep + 's' + os.sep + 'libs' + os.sep
-sys.path.append(cur_path)
+cur_path = base_path + 'modules' + os.sep + 'ssh_connection' + os.sep + 'libs' + os.sep
+if cur_path not in sys.path:
+    sys.path.append(cur_path)
 import subprocess
 
 module = GetParams("module")
@@ -43,8 +44,7 @@ if module == "connect_pem":
     user = GetParams("user")
     result = GetParams("result")
 
-    command = "ssh {user}@{host} -i {path}".format(host=host, user=user, path=path)
-    print(command)
+    command = "{lib}ssh.exe {user}@{host} -i {path}".format(lib=cur_path, host=host, user=user, path=path)
 
     try:
         con = subprocess.Popen(command,
@@ -52,7 +52,7 @@ if module == "connect_pem":
                                     stdout = subprocess.PIPE,
                                     shell=True)
         out, err = con.communicate()
-        print(out.decode())
+        
         if not out.decode():
             raise Exception("Could not resolve hostname {host}".format(host=host))
 
@@ -66,13 +66,13 @@ if module == "execute":
     result = GetParams("result")
 
     try:
-        comm = "ssh {user}@{host} -i {path} {command}".format(host=host, user=user, path=path, command=command)
+        comm = "{lib}ssh.exe {user}@{host} -i {path} {command}".format(lib=cur_path, host=host, user=user, path=path, command=command)
         con = subprocess.Popen(comm,
                                     stdin=subprocess.PIPE, 
                                     stdout = subprocess.PIPE,
                                     shell=True)
         out, err = con.communicate()
-        print(out.decode())
+        
         if result:
             SetVar(result, out.decode())
     except Exception as e:
