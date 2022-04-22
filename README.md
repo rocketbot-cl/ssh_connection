@@ -1,24 +1,47 @@
 
+
+
+
 # SSH Connection
   
-Module to connection ssh with a pem file using native ssh command  
+Module to connect to a machine through ssh with user and password or a pem file using native ssh command
 
-## Howto install this module
+## How to install this module
   
-__Download__ and __install__ the content in 'modules' folder in Rocketbot path
+__Download__ and __install__ the content in 'modules' folder in Rocketbot path  
+
 ## How to use this module
   
-Eiusmod veniam ut nisi minim in. Do et deserunt eiusmod veniam sint aliqua nulla adipisicing laboris voluptate fugiat 
-ullamco elit do. Sint amet cillum fugiat excepteur mollit voluptate reprehenderit nisi commodo sint minim.
+To make use of the commands, we must first enable conections through ssh (port 22).
+
+
+
+
 ## Overview
 
 
 1. Connect with pem  
-SSH connection with a pem file.
+SSH connection with a pem file or password.
 
-2. Execute command   
-Execute command
-### Updates
+2. Create folder  
+It creates a folder through SSH
+
+3. Change directory  
+It allows to change the currect working directory
+
+4. Execute command  
+Execute a command with arguments
+
+5. Write in file  
+Execute a command with arguments
+
+6. Read a file  
+Reads a file through SSH
+
+7. Close session  
+Close the SSH session  
+
+
 
 
 ----

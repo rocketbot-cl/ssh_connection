@@ -32,56 +32,111 @@ if cur_path not in sys.path:
     sys.path.append(cur_path)
 import subprocess
 
+from SSHService import SSH
+global ssh_sessions
+
+SESSION_DEFAULT = "default"
+try:
+    if not ssh_sessions :
+        ssh_sessions = {SESSION_DEFAULT:{}}
+except NameError:
+    ssh_sessions = {SESSION_DEFAULT:{}}
+
 module = GetParams("module")
-global con
-global host
-global user
-global path
 
-if module == "connect_pem":
-    path = GetParams("path")
-    host = GetParams("host")
-    user = GetParams("user")
-    result = GetParams("result")
-
-    command = "{lib}ssh.exe {user}@{host} -i {path}".format(lib=cur_path, host=host, user=user, path=path)
-
-    try:
-        con = subprocess.Popen(command,
-                                    stdin=subprocess.PIPE, 
-                                    stdout = subprocess.PIPE,
-                                    shell=True)
-        out, err = con.communicate()
+try:
+    if module == "connect":
+        hostname = GetParams("hostname")
+        username = GetParams("username")
+        password = GetParams("password")
+        publicKeyFile = GetParams("publicKeyFile")
         
-        if not out.decode():
-            raise Exception("Could not resolve hostname {host}".format(host=host))
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+        try:
+            if not publicKeyFile:
+                ssh_sessions[session] = SSH(hostname, username)
+                ssh_sessions[session].connect_with_password(password)
+            else:
+                ssh_sessions[session] = SSH(hostname, username)
+                ssh_sessions[session].connect_whit_private_key(publicKeyFile)
+            response = True
+        except:
+            response = False
 
-    except Exception as e:
-        PrintException()
-        raise e
-
-    
-if module == "execute":
-    command = GetParams("command")
-    result = GetParams("result")
-
-    try:
-        comm = "{lib}ssh.exe {user}@{host} -i {path} {command}".format(lib=cur_path, host=host, user=user, path=path, command=command)
-        con = subprocess.Popen(comm,
-                                    stdin=subprocess.PIPE, 
-                                    stdout = subprocess.PIPE,
-                                    shell=True)
-        out, err = con.communicate()
+        whereToStore = GetParams("whereToStore")
+        SetVar(whereToStore, response)
         
-        if result:
-            SetVar(result, out.decode())
-    except Exception as e:
-        PrintException()
-        raise e
 
-if module == "close":
-    try:
-        con.close()
-    except Exception as e:
-        PrintException()
-        raise e
+        
+
+    if module == "createFolder":
+        folderName = GetParams("folderName")
+
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+
+        ssh_sessions[session].create_folder(folderName)
+
+    if module == "changeDirectory":
+        pathToGo = GetParams("pathToGo")
+
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+
+        ssh_sessions[session].cd(pathToGo)
+
+    if module == "run":
+        commandToExecute = GetParams("commandToExecute")
+
+        try:
+            commandToExecute = eval(commandToExecute)
+        except:
+            pass
+
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+        
+        response = ssh_sessions[session].run(commandToExecute)
+
+        whereToStore = GetParams("whereToStore")
+        SetVar(whereToStore, response.output.split("\n"))
+
+    if module == "writeTextInFile":
+        pathToFile = GetParams("pathToFile")
+        textToWrite = GetParams("textToWrite")
+
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+
+        ssh_sessions[session].write_text_file(pathToFile, textToWrite)
+
+    if module == "readTextFromFile":
+        pathToFile = GetParams("pathToFile")
+
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+
+        response = ssh_sessions[session].read_text_file(pathToFile)
+
+        whereToStore = GetParams("whereToStore")
+        print(response)
+        SetVar(whereToStore, response)
+
+    if module == "disconnect":
+        session = GetParams("session")
+        if not session:
+            session = SESSION_DEFAULT
+
+        ssh_sessions[session].disconnect()
+
+except Exception as e:
+    print("\x1B[" + "31;40mAn error occurred\x1B[" + "0m")
+    PrintException()
+    raise e
